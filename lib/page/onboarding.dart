@@ -12,7 +12,7 @@ class OnBoardingPage extends StatelessWidget {
             PageViewModel(
               title: 'Are you ready to count?',
               body: '',
-              image: buildImage('assets/images/welcome.png'),
+              image: buildImage('assets/welcome.png'),
               decoration: getPageDecoration(),
             ),
             PageViewModel(
@@ -22,7 +22,7 @@ class OnBoardingPage extends StatelessWidget {
                 text: 'Start',
                 onClicked: () => Home(context),
               ),
-              image: buildImage('assets/images/count.png'),
+              image: buildImage('assets/count.png'),
               decoration: getPageDecoration(),
             ),
           ],
