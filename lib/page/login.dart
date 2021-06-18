@@ -1,6 +1,7 @@
 // import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app/page/home.dart';
 import 'package:flutter_app/page/onboarding.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -70,8 +71,8 @@ class _LoginState extends State<Login> {
       );
       _prefer.setString('_email', _email);
       _prefer.setString('_password', _password);
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => OnBoardingPage()));
+      Navigator.of(context)
+          .pushReplacement(MaterialPageRoute(builder: (context) => HomePag()));
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         print('No user found for that email.');
