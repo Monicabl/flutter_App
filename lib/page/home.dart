@@ -53,23 +53,25 @@ class _HomeState extends State<HomePag> {
   @override
   void initState() {
     super.initState();
-    //User? user = auth.currentUser;
-    //print(user);
-    Count();
+    _loadCounter();
   }
 
-  void Count() async {
+  //Cargando el valor del contador en el inicio
+  void _loadCounter() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _count = (prefs.getInt('count') ?? 0);
+    });
+  }
 
-// Set
-    //prefs.setString('session', 'loquesea');
-
-// Get
-    String? token = prefs.getString('session');
-    print(token);
-
-// Remove
-    //prefs.remove('apiToken');
+  //Incrementando el contador después del clic
+  void _incrementCounter() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      // ignore: unnecessary_statements
+      _count <= (prefs.getInt('count') ?? 0) + _count++;
+      prefs.setInt('count', _count);
+    });
   }
 
   Widget _crearButtoms() {
@@ -93,14 +95,7 @@ class _HomeState extends State<HomePag> {
         ),
         FloatingActionButton(
           child: Icon(Icons.add),
-          onPressed: () {
-            setState(() {
-              _count++;
-              if (_count == 20) {
-                _count = 0;
-              }
-            });
-          },
+          onPressed: _incrementCounter,
           tooltip: 'Incrementa el contador',
         ),
       ],

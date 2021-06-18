@@ -119,13 +119,13 @@ class _LoginState extends State<Login> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              // RaisedButton(
-              //     color: Theme.of(context).accentColor,
-              //     child: Text('SignIn'),
-              //     onPressed: signIn),
               RaisedButton(
                   color: Theme.of(context).accentColor,
                   child: Text('SignIn'),
+                  onPressed: signIn),
+              RaisedButton(
+                  color: Theme.of(context).accentColor,
+                  child: Text('SignUp'),
                   onPressed: register),
             ],
           )
