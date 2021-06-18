@@ -53,12 +53,12 @@ class _HomeState extends State<HomePag> {
   @override
   void initState() {
     super.initState();
-    User? user = auth.currentUser;
+    //User? user = auth.currentUser;
     //print(user);
-    checkSession();
+    Count();
   }
 
-  void checkSession() async {
+  void Count() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
 // Set

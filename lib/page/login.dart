@@ -50,6 +50,10 @@ class _LoginState extends State<Login> {
         email: _email,
         password: _password,
       );
+      _prefer.setString('_email', _email);
+      _prefer.setString('_password', _password);
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => OnBoardingPage()));
       print(userCredential);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -115,13 +119,13 @@ class _LoginState extends State<Login> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
+              // RaisedButton(
+              //     color: Theme.of(context).accentColor,
+              //     child: Text('SignIn'),
+              //     onPressed: signIn),
               RaisedButton(
                   color: Theme.of(context).accentColor,
                   child: Text('SignIn'),
-                  onPressed: signIn),
-              RaisedButton(
-                  color: Theme.of(context).accentColor,
-                  child: Text('SignUp'),
                   onPressed: register),
             ],
           )
