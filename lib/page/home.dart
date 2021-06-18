@@ -5,11 +5,11 @@ import 'package:flutter_app/page/onboarding.dart';
 import 'package:flutter_app/widget/buttom.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class HomePag extends StatefulWidget {
-  HomePag({Key? key}) : super(key: key);
-  @override
-  _HomeState createState() => _HomeState();
-}
+// class HomePag extends StatefulWidget {
+//   HomePag({Key? key}) : super(key: key);
+//   @override
+//   _HomeState createState() => _HomeState();
+// }
 
 class _HomeState extends State<HomePag> {
   final auth = FirebaseAuth.instance;
