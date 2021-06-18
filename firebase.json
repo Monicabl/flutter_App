@@ -1,0 +1,11 @@
+{
+  "hosting": {
+    "site": "app-flutter-5cf08",
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}
