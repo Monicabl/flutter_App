@@ -32,15 +32,15 @@ class _HomeState extends State<HomePag> {
                 text: 'Back',
                 onClicked: () => goToOnBoarding(context),
               ),
-              FlatButton(
-                  child: Text('Logout'),
-                  onPressed: () {
-                    print(':)');
-                    auth.signOut();
-                    print('fghjk');
-                    Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (context) => Login()));
-                  })
+              // FlatButton(
+              //     child: Text('Logout'),
+              //     onPressed: () {
+              //       print(':)');
+              //       auth.signOut();
+              //       print('fghjk');
+              //       Navigator.of(context).pushReplacement(
+              //           MaterialPageRoute(builder: (context) => Login()));
+              //     })
             ],
           ),
         ),
