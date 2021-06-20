@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/page/home.dart';
+import 'package:flutter_app/page/counter.dart';
 import 'package:flutter_app/widget/buttom.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 
@@ -40,7 +40,7 @@ class OnBoardingPage extends StatelessWidget {
         ),
       );
   void Home(context) => Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => HomePag()),
+        MaterialPageRoute(builder: (_) => CounterPag()),
       );
 //   void initState() {
 //     super.initState();

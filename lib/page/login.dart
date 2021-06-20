@@ -1,8 +1,11 @@
 // import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:html';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/page/home.dart';
+import 'package:flutter_app/page/counter.dart';
 import 'package:flutter_app/page/onboarding.dart';
+import 'package:flutter_app/user/register.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
@@ -11,61 +14,40 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  late String _email;
-  late String _password;
+  late String _email = '';
+  late String _password = '';
+  TextEditingController inputEmailController = new TextEditingController();
+  TextEditingController inputPasswordController = new TextEditingController();
   late SharedPreferences _prefer;
   final auth = FirebaseAuth.instance;
 
   @override
   void initState() {
     super.initState();
-    //User? user = auth.currentUser;
-    //print(user);
-    checkSession();
+    checkAuthSessionGoogle(context);
+    setLocalStorage();
+    setDebugDataOnInput();
   }
 
-  void checkSession() async {
+  void setDebugDataOnInput() {
+    _email = "rocky@gmail.com";
+    _password = "secret";
+    inputEmailController.text = _email;
+    inputPasswordController.text = _password;
+  }
+
+  void checkAuthSessionGoogle(context) {
+    if (auth.currentUser != null) {
+      navigateToCounter(context);
+    }
+  }
+
+  void setLocalStorage() async {
+    // habilita que la variable _prefer pueda guardar, obtener o eliminar datos del local storage
     _prefer = await SharedPreferences.getInstance();
-
-// Set
-    //prefs.setString('session', 'loquesea');
-
-// Get
-    String? email = _prefer.getString('_email');
-    String? password = _prefer.getString('_password');
-    if (email != null) {
-      _email = email;
-      _password = password!;
-      signIn();
-    }
-
-// Remove
-    //prefs.remove('apiToken');
   }
 
-  void register() async {
-    try {
-      UserCredential userCredential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: _email,
-        password: _password,
-      );
-      _prefer.setString('_email', _email);
-      _prefer.setString('_password', _password);
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => OnBoardingPage()));
-      print(userCredential);
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        print('The password provided is too weak.');
-      } else if (e.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
-      }
-    } catch (e) {
-      print(e);
-    }
-  }
-
+  //Sing In with Email
   void signIn() async {
     try {
       UserCredential userCredential =
@@ -73,10 +55,8 @@ class _LoginState extends State<Login> {
         email: _email,
         password: _password,
       );
-      _prefer.setString('_email', _email);
-      _prefer.setString('_password', _password);
-      Navigator.of(context)
-          .pushReplacement(MaterialPageRoute(builder: (context) => HomePag()));
+      saveCredentials(userCredential);
+      navigateToCounter(context);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         print('No user found for that email.');
@@ -84,6 +64,46 @@ class _LoginState extends State<Login> {
         print('Wrong password provided for that user.');
       }
     }
+  }
+
+  void navigateToOnboarding() {
+    Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => OnBoardingPage()));
+  }
+
+  void saveCredentials(UserCredential userCredential) {
+    print(userCredential);
+    _prefer.setString('email', _email);
+    _prefer.setString('password', _password);
+  }
+
+  void navigateToCounter(context) {
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (context) => CounterPag()));
+  }
+
+  void toRegister(context) {
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (context) => Register()));
+  }
+
+// SinIn with Google
+  Future<UserCredential> signInWithGoogle() async {
+    // Create a new provider
+    GoogleAuthProvider googleProvider = GoogleAuthProvider();
+
+    googleProvider
+        .addScope('https://www.googleapis.com/auth/contacts.readonly');
+    googleProvider.setCustomParameters({'login_hint': 'user@example.com'});
+
+    // Once signed in, return the UserCredential
+    return await FirebaseAuth.instance.signInWithPopup(googleProvider);
+  }
+
+  void handleBtnGoogle(context) async {
+    UserCredential credential = await signInWithGoogle();
+    saveCredentials(credential);
+    navigateToCounter(context);
   }
 
   @override
@@ -99,6 +119,7 @@ class _LoginState extends State<Login> {
             child: TextField(
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(hintText: 'email'),
+                controller: inputEmailController,
                 onChanged: (value) {
                   setState(() {
                     _email = value.trim();
@@ -110,6 +131,7 @@ class _LoginState extends State<Login> {
             child: TextField(
                 obscureText: true,
                 decoration: InputDecoration(hintText: 'password'),
+                controller: inputPasswordController,
                 onChanged: (value) {
                   setState(() {
                     _password = value.trim();
@@ -125,8 +147,22 @@ class _LoginState extends State<Login> {
                   onPressed: signIn),
               RaisedButton(
                   color: Theme.of(context).accentColor,
-                  child: Text('SignUp'),
-                  onPressed: register),
+                  child: Text('Sign Up'),
+                  onPressed: () => toRegister(context)),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.white,
+                  onPrimary: Colors.black,
+                ),
+                icon: FaIcon(FontAwesomeIcons.google, color: Colors.red),
+                label: Text('Sign Up with Google'),
+                onPressed: () => handleBtnGoogle(context),
+                // onPressed: () {
+                //   final provider = Provider.of<GoogleSingInProvider>(context,
+                //       listen: false);
+                //   provider.googleLogin();
+                // }
+              )
             ],
           )
         ],
