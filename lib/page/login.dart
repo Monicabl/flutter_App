@@ -1,5 +1,6 @@
 // import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:html';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/page/counter.dart';
@@ -27,14 +28,6 @@ class _LoginState extends State<Login> {
     super.initState();
     checkAuthSessionGoogle(context);
     setLocalStorage();
-    setDebugDataOnInput();
-  }
-
-  void setDebugDataOnInput() {
-    _email = "rocky@gmail.com";
-    _password = "secret";
-    inputEmailController.text = _email;
-    inputPasswordController.text = _password;
   }
 
   void checkAuthSessionGoogle(context) {
@@ -53,7 +46,7 @@ class _LoginState extends State<Login> {
     try {
       UserCredential userCredential =
           await GoogleAuthService.signInWithPassword(_email, _password);
-      saveCredentials(userCredential);
+      //saveCredentials(userCredential);
       navigateToCounter(context);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
@@ -64,15 +57,66 @@ class _LoginState extends State<Login> {
     }
   }
 
-  // void navigateToOnboarding() {
-  //   Navigator.of(context).pushReplacement(
-  //       MaterialPageRoute(builder: (context) => OnBoardingPage()));
+  // void saveCredentials(UserCredential userCredential) {
+  //   print(userCredential);
+  //   _prefer.setString('email', _email);
+  //   _prefer.setString('password', _password);
   // }
 
-  void saveCredentials(UserCredential userCredential) {
-    print(userCredential);
-    _prefer.setString('email', _email);
-    _prefer.setString('password', _password);
+  Future<void> createUserDocument(UserCredential userCredential) async {
+    _email = userCredential.user!.email!;
+    CollectionReference userCollection =
+        FirebaseFirestore.instance.collection("users");
+
+    await userCollection.add({
+      'email': _email,
+      'name': "",
+      'last_name': "",
+      'counter': 0,
+    });
+  }
+
+  void handleBtnGoogle(context) async {
+    UserCredential credential = await GoogleAuthService.signInWithGoogle();
+    CollectionReference userCollection =
+        FirebaseFirestore.instance.collection("users");
+
+    QuerySnapshot users = await userCollection
+        .where('email', isEqualTo: credential.user!.email)
+        .limit(1)
+        .get();
+
+    if (users.size == 1) {
+      navigateToCounter(context);
+      return;
+    }
+    await createUserDocument(credential);
+    navigateToOnboarding(context);
+  }
+
+  void handleBtnFacebook(context) async {
+    try {
+      UserCredential credential = await GoogleAuthService.signInWithFacebook();
+      CollectionReference userCollection =
+          FirebaseFirestore.instance.collection("users");
+
+      QuerySnapshot users = await userCollection
+          .where('email', isEqualTo: credential.user!.email)
+          .limit(1)
+          .get();
+
+      if (users.size == 1) {
+        navigateToCounter(context);
+        return;
+      }
+      await createUserDocument(credential);
+      navigateToOnboarding(context);
+    } catch (e) {}
+  }
+
+  void navigateToOnboarding(context) {
+    Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => OnBoardingPage()));
   }
 
   void navigateToCounter(context) {
@@ -85,22 +129,7 @@ class _LoginState extends State<Login> {
         .pushReplacement(MaterialPageRoute(builder: (context) => Register()));
   }
 
-  void handleBtnGoogle(context) async {
-    UserCredential credential = await GoogleAuthService.signInWithGoogle();
-    saveCredentials(credential);
-    navigateToCounter(context);
-  }
-
-  void handleBtnFacebook(context) async {
-    try {
-      UserCredential credential = await GoogleAuthService.signInWithFacebook();
-      saveCredentials(credential);
-      navigateToCounter(context);
-    } catch (e) {
-      print(e);
-    }
-  }
-
+//----------------------->>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -134,7 +163,7 @@ class _LoginState extends State<Login> {
                 }),
           ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               RaisedButton(
                   color: Theme.of(context).accentColor,

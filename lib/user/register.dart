@@ -39,6 +39,22 @@ class _RegisterState extends State<Register> {
     }
   }
 
+  void saveCredentials(UserCredential userCredential) {
+    _email = userCredential.user!.email!;
+    _prefer.setString('email', _email);
+    _prefer.setString('password', _password);
+
+    CollectionReference userCollection =
+        FirebaseFirestore.instance.collection("users");
+
+    userCollection.add({
+      'email': _email,
+      'name': "",
+      'last_name': "",
+      'counter': 0,
+    });
+  }
+
   void checkSession() async {
     _prefer = await SharedPreferences.getInstance();
 
@@ -70,21 +86,6 @@ class _RegisterState extends State<Register> {
     }
   }
 
-  // void getUserData() async {
-  //   try {
-  //     CollectionReference userCollection =
-  //         FirebaseFirestore.instance.collection("users");
-
-  //     QuerySnapshot users = await userCollection
-  //         .where('email', isEqualTo: auth.currentUser!.email)
-  //         .limit(1)
-  //         .get();
-
-  //     userDocument = users.docs[0];
-  //     _name = users.docs[0].get("name");
-  //   } catch (e) {}
-  // }
-
   void handleBtnGoogle(context) async {
     UserCredential credential = await GoogleAuthService.signInWithGoogle();
     CollectionReference userCollection =
@@ -106,11 +107,21 @@ class _RegisterState extends State<Register> {
   void handleBtnFacebook(context) async {
     try {
       UserCredential credential = await GoogleAuthService.signInWithFacebook();
+      CollectionReference userCollection =
+          FirebaseFirestore.instance.collection("users");
+
+      QuerySnapshot users = await userCollection
+          .where('email', isEqualTo: credential.user!.email)
+          .limit(1)
+          .get();
+
+      if (users.size == 1) {
+        toCounter(context);
+        return;
+      }
       saveCredentials(credential);
       toOnboarding(context);
-    } catch (e) {
-      print(e);
-    }
+    } catch (e) {}
   }
 
   // Future<bool> userWasRegister(String? email) async {
@@ -137,22 +148,6 @@ class _RegisterState extends State<Register> {
         .pushReplacement(MaterialPageRoute(builder: (context) => Login()));
   }
 
-  void saveCredentials(UserCredential userCredential) {
-    _email = userCredential.user!.email!;
-    _prefer.setString('email', _email);
-    _prefer.setString('password', _password);
-
-    CollectionReference userCollection =
-        FirebaseFirestore.instance.collection("users");
-
-    userCollection.add({
-      'email': _email,
-      'name': "",
-      'last_name': "",
-      'counter': 0,
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -164,7 +159,7 @@ class _RegisterState extends State<Register> {
               padding: const EdgeInsets.all(8.0),
               child: TextField(
                   keyboardType: TextInputType.name,
-                  decoration: InputDecoration(hintText: 'EMAIL'),
+                  decoration: InputDecoration(hintText: 'Email'),
                   onChanged: (value) {
                     setState(() {
                       _email = value.trim();
@@ -174,7 +169,7 @@ class _RegisterState extends State<Register> {
             padding: const EdgeInsets.all(8.0),
             child: TextField(
                 keyboardType: TextInputType.name,
-                decoration: InputDecoration(hintText: 'PASSWORD'),
+                decoration: InputDecoration(hintText: 'Password'),
                 onChanged: (value) {
                   setState(() {
                     _password = value.trim();
@@ -188,6 +183,11 @@ class _RegisterState extends State<Register> {
                 color: Theme.of(context).accentColor,
                 child: Text('Registrar'),
                 onPressed: () => register(),
+              ),
+              RaisedButton(
+                color: Theme.of(context).accentColor,
+                child: Text('Regresar Login'),
+                onPressed: () => toLogin(),
               ),
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
@@ -206,11 +206,6 @@ class _RegisterState extends State<Register> {
                 icon: FaIcon(FontAwesomeIcons.facebook, color: Colors.blue),
                 label: Text('Sign Up with Facebook'),
                 onPressed: () => handleBtnFacebook(context),
-              ),
-              RaisedButton(
-                color: Theme.of(context).accentColor,
-                child: Text('Regresar Login'),
-                onPressed: () => toLogin(),
               ),
             ],
           )

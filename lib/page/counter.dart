@@ -54,6 +54,7 @@ class _CounterState extends State<CounterPag> {
   void goToOnBoarding(context) => Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => OnBoardingPage()),
       );
+
   void logout(context) {
     auth.signOut();
     Navigator.of(context)
@@ -63,8 +64,6 @@ class _CounterState extends State<CounterPag> {
 //-------------->>
   //Cargando el valor del contador en el inicio
   void _loadCounter() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setInt('count', 0);
     setState(() {
       _count = 0;
       CollectionReference userCollection =
@@ -75,11 +74,9 @@ class _CounterState extends State<CounterPag> {
 
   //Incrementando el contador después del clic
   void _incrementCounter() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       // ignore: unnecessary_statements
-      _count <= (prefs.getInt('count') ?? 0) + _count++;
-      prefs.setInt('count', _count);
+      _count <= _count++;
       CollectionReference userCollection =
           FirebaseFirestore.instance.collection("users");
       userCollection.doc(userDocument!.id).update({'counter': _count});
@@ -117,8 +114,8 @@ class _CounterState extends State<CounterPag> {
               ),
               const SizedBox(height: 15),
               ButtonWidget(
-                text: 'Back',
-                onClicked: () => goToOnBoarding(context),
+                text: 'LogOut',
+                onClicked: () => logout(context),
               ),
             ],
           ),
