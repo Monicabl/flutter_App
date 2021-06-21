@@ -20,7 +20,7 @@ class OnBoardingPage extends StatelessWidget {
               title: 'An accountant is basically an organizer',
               body: 'Start your journey',
               footer: ButtonWidget(
-                text: 'Start',
+                text: 'Register',
                 onClicked: () => navigateToProfile(context),
               ),
               image: buildImage('assets/count.png'),

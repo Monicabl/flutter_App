@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/page/counter.dart';
 import 'package:flutter_app/page/login.dart';
 import 'package:flutter_app/page/onboarding.dart';
+import 'package:flutter_app/services/GoogleAuthService.dart';
 import 'package:flutter_app/user/profile.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -54,10 +55,8 @@ class _RegisterState extends State<Register> {
   void register() async {
     try {
       UserCredential userCredential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: _email,
-        password: _password,
-      );
+          await GoogleAuthService.signUp(_email, _password);
+
       saveCredentials(userCredential);
       toOnboarding(context);
     } on FirebaseAuthException catch (e) {
@@ -86,20 +85,8 @@ class _RegisterState extends State<Register> {
   //   } catch (e) {}
   // }
 
-  Future<UserCredential> signInWithGoogle() async {
-    // Create a new provider
-    GoogleAuthProvider googleProvider = GoogleAuthProvider();
-
-    googleProvider
-        .addScope('https://www.googleapis.com/auth/contacts.readonly');
-    googleProvider.setCustomParameters({'login_hint': 'user@example.com'});
-
-    // Once signed in, return the UserCredential
-    return await FirebaseAuth.instance.signInWithPopup(googleProvider);
-  }
-
   void handleBtnGoogle(context) async {
-    UserCredential credential = await signInWithGoogle();
+    UserCredential credential = await GoogleAuthService.signInWithGoogle();
     CollectionReference userCollection =
         FirebaseFirestore.instance.collection("users");
 
@@ -114,6 +101,16 @@ class _RegisterState extends State<Register> {
     }
     saveCredentials(credential);
     toOnboarding(context);
+  }
+
+  void handleBtnFacebook(context) async {
+    try {
+      UserCredential credential = await GoogleAuthService.signInWithFacebook();
+      saveCredentials(credential);
+      toOnboarding(context);
+    } catch (e) {
+      print(e);
+    }
   }
 
   // Future<bool> userWasRegister(String? email) async {
@@ -184,25 +181,39 @@ class _RegisterState extends State<Register> {
                   });
                 }),
           ),
-          RaisedButton(
-            color: Theme.of(context).accentColor,
-            child: Text('Registrar'),
-            onPressed: () => register(),
-          ),
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              primary: Colors.white,
-              onPrimary: Colors.black,
-            ),
-            icon: FaIcon(FontAwesomeIcons.google, color: Colors.red),
-            label: Text('Sign Up with Google'),
-            onPressed: () => handleBtnGoogle(context),
-          ),
-          RaisedButton(
-            color: Theme.of(context).accentColor,
-            child: Text('Regresar Login'),
-            onPressed: () => toLogin(),
-          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              RaisedButton(
+                color: Theme.of(context).accentColor,
+                child: Text('Registrar'),
+                onPressed: () => register(),
+              ),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.white,
+                  onPrimary: Colors.black,
+                ),
+                icon: FaIcon(FontAwesomeIcons.google, color: Colors.red),
+                label: Text('Sign Up with Google'),
+                onPressed: () => handleBtnGoogle(context),
+              ),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.white,
+                  onPrimary: Colors.black,
+                ),
+                icon: FaIcon(FontAwesomeIcons.facebook, color: Colors.blue),
+                label: Text('Sign Up with Facebook'),
+                onPressed: () => handleBtnFacebook(context),
+              ),
+              RaisedButton(
+                color: Theme.of(context).accentColor,
+                child: Text('Regresar Login'),
+                onPressed: () => toLogin(),
+              ),
+            ],
+          )
         ]));
   }
 }

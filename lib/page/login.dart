@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/page/counter.dart';
 import 'package:flutter_app/page/onboarding.dart';
+import 'package:flutter_app/services/GoogleAuthService.dart';
 import 'package:flutter_app/user/register.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -47,14 +48,11 @@ class _LoginState extends State<Login> {
     _prefer = await SharedPreferences.getInstance();
   }
 
-  //Sing In with Email
+  //Sing In, Email
   void signIn() async {
     try {
       UserCredential userCredential =
-          await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _email,
-        password: _password,
-      );
+          await GoogleAuthService.signInWithPassword(_email, _password);
       saveCredentials(userCredential);
       navigateToCounter(context);
     } on FirebaseAuthException catch (e) {
@@ -87,23 +85,20 @@ class _LoginState extends State<Login> {
         .pushReplacement(MaterialPageRoute(builder: (context) => Register()));
   }
 
-// SinIn with Google
-  Future<UserCredential> signInWithGoogle() async {
-    // Create a new provider
-    GoogleAuthProvider googleProvider = GoogleAuthProvider();
-
-    googleProvider
-        .addScope('https://www.googleapis.com/auth/contacts.readonly');
-    googleProvider.setCustomParameters({'login_hint': 'user@example.com'});
-
-    // Once signed in, return the UserCredential
-    return await FirebaseAuth.instance.signInWithPopup(googleProvider);
-  }
-
   void handleBtnGoogle(context) async {
-    UserCredential credential = await signInWithGoogle();
+    UserCredential credential = await GoogleAuthService.signInWithGoogle();
     saveCredentials(credential);
     navigateToCounter(context);
+  }
+
+  void handleBtnFacebook(context) async {
+    try {
+      UserCredential credential = await GoogleAuthService.signInWithFacebook();
+      saveCredentials(credential);
+      navigateToCounter(context);
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
@@ -155,8 +150,22 @@ class _LoginState extends State<Login> {
                   onPrimary: Colors.black,
                 ),
                 icon: FaIcon(FontAwesomeIcons.google, color: Colors.red),
-                label: Text('Sign Up with Google'),
+                label: Text('Sign In with Google'),
                 onPressed: () => handleBtnGoogle(context),
+                // onPressed: () {
+                //   final provider = Provider.of<GoogleSingInProvider>(context,
+                //       listen: false);
+                //   provider.googleLogin();
+                // }
+              ),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.white,
+                  onPrimary: Colors.black,
+                ),
+                icon: FaIcon(FontAwesomeIcons.facebook, color: Colors.blue),
+                label: Text('Sign In with Facebook'),
+                onPressed: () => handleBtnFacebook(context),
                 // onPressed: () {
                 //   final provider = Provider.of<GoogleSingInProvider>(context,
                 //       listen: false);
