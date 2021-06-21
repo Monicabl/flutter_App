@@ -54,11 +54,8 @@ class _ProfileState extends State<Profile> {
     userCollection
         .doc(userDocument.id)
         .update({'name': _name, 'last_name': _lastName});
-    toOnboarding(context);
+    toCount(context);
   }
-
-  void toOnboarding(context) => Navigator.of(context)
-      .pushReplacement(MaterialPageRoute(builder: (_) => OnBoardingPage()));
 
   void toCount(context) => Navigator.of(context)
       .pushReplacement(MaterialPageRoute(builder: (_) => CounterPag()));

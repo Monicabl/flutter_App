@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/page/counter.dart';
+import 'package:flutter_app/user/profile.dart';
 import 'package:flutter_app/widget/buttom.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 
@@ -20,17 +21,17 @@ class OnBoardingPage extends StatelessWidget {
               body: 'Start your journey',
               footer: ButtonWidget(
                 text: 'Start',
-                onClicked: () => Home(context),
+                onClicked: () => navigateToProfile(context),
               ),
               image: buildImage('assets/count.png'),
               decoration: getPageDecoration(),
             ),
           ],
           done: Text('Start', style: TextStyle(fontWeight: FontWeight.w600)),
-          onDone: () => Home(context),
+          onDone: () => navigateToProfile(context),
           showSkipButton: true,
           skip: Text('Skip'),
-          onSkip: () => Home(context),
+          onSkip: () => navigateToProfile(context),
           next: Icon(Icons.arrow_forward),
           dotsDecorator: getDotDecoration(),
           onChange: (index) => print('Page $index selected'),
@@ -39,9 +40,10 @@ class OnBoardingPage extends StatelessWidget {
           nextFlex: 0,
         ),
       );
-  void Home(context) => Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => CounterPag()),
-      );
+  void navigateToProfile(context) {
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (context) => Profile()));
+  }
 //   void initState() {
 //     super.initState();
 //     print("monica2");

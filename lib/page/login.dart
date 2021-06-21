@@ -66,10 +66,10 @@ class _LoginState extends State<Login> {
     }
   }
 
-  void navigateToOnboarding() {
-    Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => OnBoardingPage()));
-  }
+  // void navigateToOnboarding() {
+  //   Navigator.of(context).pushReplacement(
+  //       MaterialPageRoute(builder: (context) => OnBoardingPage()));
+  // }
 
   void saveCredentials(UserCredential userCredential) {
     print(userCredential);

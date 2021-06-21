@@ -16,12 +16,20 @@ class CounterPag extends StatefulWidget {
 class _CounterState extends State<CounterPag> {
   final auth = FirebaseAuth.instance;
   int _count = 0;
+  late String _name = '';
   late QueryDocumentSnapshot? userDocument;
+
+  TextEditingController inputNameController = new TextEditingController();
+
   @override
   void initState() {
     super.initState();
-    getUserData();
-    _loadCounter();
+    try {
+      getUserData();
+      _loadCounter();
+    } catch (e) {
+      print(e);
+    }
   }
 
   void getUserData() async {
@@ -32,14 +40,12 @@ class _CounterState extends State<CounterPag> {
         .where('email', isEqualTo: auth.currentUser!.email)
         .limit(1)
         .get();
-
     userDocument = users.docs[0];
     setState(() {
       _count = userDocument!.get('counter');
+      _name = users.docs[0].get("name");
+      inputNameController.text = _name;
     });
-
-    // _counter = users.docs[0].get("name");
-    // inputNameController.text = _name;
   }
 
   void toProfile(context) => Navigator.of(context)
@@ -54,6 +60,7 @@ class _CounterState extends State<CounterPag> {
         .pushReplacement(MaterialPageRoute(builder: (_) => Login()));
   }
 
+//-------------->>
   //Cargando el valor del contador en el inicio
   void _loadCounter() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -79,6 +86,7 @@ class _CounterState extends State<CounterPag> {
     });
   }
 
+//---------------->>
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: Text('Contador'), actions: <Widget>[
@@ -102,6 +110,7 @@ class _CounterState extends State<CounterPag> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Text(' Hola: $_name'),
               Text(
                 'The number is: $_count',
                 style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
@@ -111,15 +120,6 @@ class _CounterState extends State<CounterPag> {
                 text: 'Back',
                 onClicked: () => goToOnBoarding(context),
               ),
-              // FlatButton(
-              //     child: Text('Logout'),
-              //     onPressed: () {
-              //       print(':)');
-              //       auth.signOut();
-              //       print('fghjk');
-              //       Navigator.of(context).pushReplacement(
-              //           MaterialPageRoute(builder: (context) => Login()));
-              //     })
             ],
           ),
         ),

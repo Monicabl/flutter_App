@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app/page/counter.dart';
 import 'package:flutter_app/page/login.dart';
+import 'package:flutter_app/page/onboarding.dart';
 import 'package:flutter_app/user/profile.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,45 +17,24 @@ class Register extends StatefulWidget {
 class _RegisterState extends State<Register> {
   late String _email = '';
   late String _password = '';
+  late String _name = '';
   late SharedPreferences _prefer;
+  late QueryDocumentSnapshot userDocument;
   // La persona checadora de sesion
   final auth = FirebaseAuth.instance;
 
   @override
   void initState() {
     super.initState();
-    checkSession();
-    checkAuthSessionGoogle();
-    test();
-  }
-
-  void test() async {
-    // CollectionReference userCollection =
-    //     FirebaseFirestore.instance.collection("users");
-
-    // userCollection.add({
-    //   'full_name': "sdf", // John Doe
-    //   'company': "ma", // Stokes and Sons
-    //   'age': 233 //
-    // });
-    // QuerySnapshot users = await userCollection
-    //     .where('email', isEqualTo: "mapache@gmail.com")
-    //     .get();
-    // // QuerySnapshot users = await userCollection.get();
-    // print(users.size);
-    // for (var doc in users.docs) {
-    //   print(doc.data());
-    //   print(doc.get("name"));
-
-    //   userCollection
-    //       .doc(doc.id)
-    //       .update({'nombre': 'Francisco', 'email': 'mapache@gmail.com'});
-    // }
+    try {
+      checkSession();
+      checkAuthSessionGoogle();
+    } catch (e) {}
   }
 
   void checkAuthSessionGoogle() {
     if (auth.currentUser != null) {
-      navigateToProfile(context);
+      toOnboarding(context);
     }
   }
 
@@ -78,7 +59,7 @@ class _RegisterState extends State<Register> {
         password: _password,
       );
       saveCredentials(userCredential);
-      navigateToProfile(context);
+      toOnboarding(context);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         print('The password provided is too weak.');
@@ -89,6 +70,21 @@ class _RegisterState extends State<Register> {
       print(e);
     }
   }
+
+  // void getUserData() async {
+  //   try {
+  //     CollectionReference userCollection =
+  //         FirebaseFirestore.instance.collection("users");
+
+  //     QuerySnapshot users = await userCollection
+  //         .where('email', isEqualTo: auth.currentUser!.email)
+  //         .limit(1)
+  //         .get();
+
+  //     userDocument = users.docs[0];
+  //     _name = users.docs[0].get("name");
+  //   } catch (e) {}
+  // }
 
   Future<UserCredential> signInWithGoogle() async {
     // Create a new provider
@@ -104,14 +100,40 @@ class _RegisterState extends State<Register> {
 
   void handleBtnGoogle(context) async {
     UserCredential credential = await signInWithGoogle();
+    CollectionReference userCollection =
+        FirebaseFirestore.instance.collection("users");
+
+    QuerySnapshot users = await userCollection
+        .where('email', isEqualTo: credential.user!.email)
+        .limit(1)
+        .get();
+
+    if (users.size == 1) {
+      toCounter(context);
+      return;
+    }
     saveCredentials(credential);
-    navigateToProfile(context);
+    toOnboarding(context);
   }
 
-  void navigateToProfile(context) {
-    Navigator.of(context)
-        .pushReplacement(MaterialPageRoute(builder: (context) => Profile()));
-  }
+  // Future<bool> userWasRegister(String? email) async {
+  //   try {
+  //     // CollectionReference userCollection =
+  //     //     FirebaseFirestore.instance.collection("users");
+
+  //     // QuerySnapshot users =
+  //     //     await userCollection.where('email', isEqualTo: email).limit(1).get();
+  //     // return users.size == 1;
+  //   } catch (e) {
+  //     return false;
+  //   }
+  // }
+
+  void toOnboarding(context) => Navigator.of(context)
+      .pushReplacement(MaterialPageRoute(builder: (_) => OnBoardingPage()));
+
+  void toCounter(context) => Navigator.of(context)
+      .pushReplacement(MaterialPageRoute(builder: (_) => CounterPag()));
 
   void toLogin() {
     Navigator.of(context)
